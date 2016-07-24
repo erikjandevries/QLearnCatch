@@ -1,3 +1,19 @@
+# Temporary files
+tmp/
+~$*.*
+
+# Output
+output/
+
+# VirtualEnv
+env/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
