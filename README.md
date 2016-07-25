@@ -23,3 +23,16 @@ The following must be installed in order to run QLearnCatch:
 ```
 python qlearn_catch.py
 ```
+
+## Known issues
+
+It seems that on a first run the algorithm might not converge to a winning
+strategy. I've noticed in such cases that after about 150 episodes, the loss
+function consistently returns values of the form 0.##00, 0.##33, 0.##67, but
+without converging to 0. Starting the script with the command above a second
+time then does converge. At present I am still investigating the cause of this
+problem - if you have any suggestions, please let me know!
+
+## Contributors
+
+- Erik Jan de Vries: https://twitter.com/erikjandevries
