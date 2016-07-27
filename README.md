@@ -20,17 +20,22 @@ The following must be installed in order to run QLearnCatch:
 
 ## How to run
 
+To train an agent to play Catch and then play 10 games, run:
+
 ```
 python qlearn_catch.py
 ```
 
+You can modify the script `qlearn_catch.py` to save the trained network to a file,
+or to load a previously saved network instead of training a new network from scratch.
+
 ## Known issues
 
-It seems that on a first run the algorithm might not converge to a winning
+It seems that occasionally the algorithm might not converge to a winning
 strategy. I've noticed in such cases that after about 150 episodes, the loss
 function consistently returns values of the form 0.##00, 0.##33, 0.##67, but
-without converging to 0. Starting the script with the command above a second
-time then does converge. At present I am still investigating the cause of this
+without converging to 0. Starting the script again with the command above then
+often does converge. At present I am still investigating the cause of this
 problem - if you have any suggestions, please let me know!
 
 ## Contributors

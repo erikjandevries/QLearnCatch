@@ -22,8 +22,8 @@ from collections import deque;
 # %matplotlib inline
 import matplotlib.pyplot as plt
 import numpy as np;
-import os
 
+from tools import ensure_dir;
 from qnet import qnet;
 
 
@@ -121,14 +121,10 @@ class CatchAgent(object):
 
             log.info("Epoch {:03d}/999 | epsilon {:.4f} | Loss {:.4f} | Win count {}".format(i_episode, epsilon, loss, wins))
 
-    def play(self, n_episodes = 10, output_folder = "output"):
+    def play(self, n_episodes = 10, output_folder = None):
         log.info("Playing catch with the trained agent ({} episodes)".format(n_episodes));
         log.info("Output will be saved in the folder: {}".format(output_folder));
 
-        def ensure_dir(d):
-            if not os.path.exists(d):
-                log.info("Creating folder: {}".format(d));
-                os.makedirs(d);
         ensure_dir(output_folder);
 
         wins = 0
@@ -139,10 +135,11 @@ class CatchAgent(object):
             loss = 0.
             done = False
 
-            # save the initial observation as an image
             c = 0
-            plt.imshow(self.env.render(mode='rgb_array'), interpolation='none')
-            plt.savefig("{}/{:02d}_{:02d}.png".format(output_folder, e, c))
+            if output_folder is not None:
+                # save the initial observation as an image
+                self.env.render(mode='matplotlib');
+                plt.savefig("{}/{:02d}_{:02d}.png".format(output_folder, e, c))
             while not done:
                 c += 1
                 # get next action
@@ -154,8 +151,9 @@ class CatchAgent(object):
                 if reward == 1:
                     wins += 1
 
-                # save the observation as an image
-                plt.imshow(self.env.render(mode='rgb_array'), interpolation='none')
-                plt.savefig("{}/{:02d}_{:02d}.png".format(output_folder, e, c))
+                if output_folder is not None:
+                    # save the observation as an image
+                    self.env.render(mode='matplotlib');
+                    plt.savefig("{}/{:02d}_{:02d}.png".format(output_folder, e, c))
 
         log.info("Won {} out of {} games ({} %)".format(wins, n_episodes, (100*wins/n_episodes)));

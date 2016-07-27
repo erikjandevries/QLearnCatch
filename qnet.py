@@ -16,12 +16,18 @@
 
 import logging
 log = logging.getLogger(__name__)
+
+import cPickle as pickle;
+import os;
+
 import theano
 import theano.tensor as T
 import lasagne
 from lasagne.layers import InputLayer
 from lasagne.layers import DenseLayer
 from lasagne.utils import floatX;
+
+from tools import ensure_dir;
 
 
 class qnet(object):
@@ -68,3 +74,16 @@ class qnet(object):
 
     def eval_train(self, inp, trg):
         return self.train(self.prep_inp(inp), floatX(trg))
+
+    def save(self, net_file):
+        ensure_dir(os.path.dirname(net_file))
+        log.info("Saving net file: {}".format(net_file));
+        with open(net_file, 'wb') as pkl_file:
+            param_values = lasagne.layers.get_all_param_values(self.net['output']);
+            pickle.dump(param_values, pkl_file);
+
+    def load(self, net_file):
+        log.info("Loading net file: {}".format(net_file));
+        with open(net_file, 'rb') as pkl_file:
+            param_values = pickle.load(pkl_file);
+            lasagne.layers.set_all_param_values(self.net['output'], param_values);

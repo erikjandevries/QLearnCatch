@@ -43,10 +43,13 @@ if __name__ == "__main__":
                       , memory_maxlen = 250
                       );
 
+    # agent.net.load("output/net/net.pkl");
+
     agent.train( n_episodes = 1000
                , batch_size = 50
                );
+    agent.net.save("output/net/net.pkl");
 
     agent.play( n_episodes = 10
-              , output_folder = "output"
+              , output_folder = "output/images"
               );
