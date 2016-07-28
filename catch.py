@@ -92,6 +92,21 @@ class Catch(gym.Env):
         observation[-1, (basket-1):(basket+2)] = 1  # draw the basket
         return observation
 
+    def _get_observation_rgb(self):
+        # Get current state
+        fruit_row, fruit_col, basket = self.state
+        # Get observation
+        observation_rgb = np.zeros((self.grid_size, self.grid_size, 3), dtype='uint8')
+        # draw the basket
+        observation_rgb[-1, (basket-1):(basket+2), 0] = 87
+        observation_rgb[-1, (basket-1):(basket+2), 1] = 45
+        observation_rgb[-1, (basket-1):(basket+2), 2] = 9
+        # draw the fruit
+        observation_rgb[fruit_row, fruit_col,0] += 102
+        observation_rgb[fruit_row, fruit_col,1] += 141
+        observation_rgb[fruit_row, fruit_col,2] += 60
+        return observation_rgb
+
     def _get_reward(self):
         # Get current state
         fruit_row, fruit_col, basket = self.state
@@ -105,9 +120,9 @@ class Catch(gym.Env):
             return 0
 
     def _plot_observation(self):
-        plt.imshow(  self._get_observation()
+        plt.imshow(  self._get_observation_rgb()
                    , interpolation='none'
-                   , cmap='gray')
+                   )
         plt.tick_params(
               axis='both'        # changes apply to both the x-axis and the y-axis
             , which='both'       # both major and minor ticks are affected
@@ -135,7 +150,5 @@ class Catch(gym.Env):
             self._plot_observation()
             return
         if mode == 'rgb_array':
-            observation = self._get_observation();
-            h,w = observation.shape;
-            rgb_array = np.broadcast_to(observation[:,:,np.newaxis], (h,w,3));
+            rgb_array = self._get_observation_rgb();
             return rgb_array;
