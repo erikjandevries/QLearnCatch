@@ -3,7 +3,7 @@
 This is a demonstration of Reinforcement Learning using the [OpenAI Gym](https://gym.openai.com/)
 framework in combination with Theano / Lasagne.
 
-<img src="images/catch.png" alt="Catch" style="width: 200px;"/>
+<img src="images/catch.png" alt="Catch" width="200px;"/>
 
 We first create a [learning environment for the OpenAI Gym for the game Catch](OpenAI Gym Catch environment.ipynb).
 
