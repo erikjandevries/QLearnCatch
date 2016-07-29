@@ -95,16 +95,18 @@ class Catch(gym.Env):
     def _get_observation_rgb(self):
         # Get current state
         fruit_row, fruit_col, basket = self.state
+        reward = self._get_reward()
         # Get observation
         observation_rgb = np.zeros((self.grid_size, self.grid_size, 3), dtype='uint8')
         # draw the basket
-        observation_rgb[-1, (basket-1):(basket+2), 0] = 87
-        observation_rgb[-1, (basket-1):(basket+2), 1] = 45
-        observation_rgb[-1, (basket-1):(basket+2), 2] = 9
+        observation_rgb[-1, (basket-1):(basket+2), :] = [87, 45, 9]
         # draw the fruit
-        observation_rgb[fruit_row, fruit_col,0] += 102
-        observation_rgb[fruit_row, fruit_col,1] += 141
-        observation_rgb[fruit_row, fruit_col,2] += 60
+        if reward == 1:
+            observation_rgb[fruit_row, fruit_col, :] = [96, 192, 64]
+        elif reward == 0:
+            observation_rgb[fruit_row, fruit_col, :] = [192, 192, 64]
+        else:
+            observation_rgb[fruit_row, fruit_col, :] = [192, 64, 64]
         return observation_rgb
 
     def _get_reward(self):
