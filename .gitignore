@@ -3,7 +3,7 @@ tmp/
 ~$*.*
 
 # Output
-output/
+output*/
 
 # VirtualEnv
 env/

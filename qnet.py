@@ -14,17 +14,18 @@
    limitations under the License.
 """
 
-import logging
-log = logging.getLogger(__name__)
+import logging;
+log = logging.getLogger(__name__);
 
 import cPickle as pickle;
+import numpy as np;
 import os;
 
-import theano
-import theano.tensor as T
-import lasagne
-from lasagne.layers import InputLayer
-from lasagne.layers import DenseLayer
+import theano;
+import theano.tensor as T;
+import lasagne;
+from lasagne.layers import InputLayer;
+from lasagne.layers import DenseLayer;
 from lasagne.utils import floatX;
 
 from tools import ensure_dir;
@@ -32,51 +33,65 @@ from tools import ensure_dir;
 
 class qnet(object):
     """Neural network for estimating the Q-value function"""
-    def __init__(self, input_shape, num_actions, input_var=None, hidden_size=100):
+    def __init__( self
+                , input_shape
+                , num_actions
+                , input_var     = None
+                , hidden_size   = 100
+                , learning_rate = 0.1
+                ):
         log.debug("Creating qnet");
-
-        target_var = T.matrix('targets');
-
-        self.net = {}
-        self.net['input']  = InputLayer(input_shape, input_var=input_var)
-        self.net['dense1'] = DenseLayer(self.net['input'], num_units=hidden_size)
-        self.net['dense2'] = DenseLayer(self.net['dense1'], num_units=hidden_size)
-        self.net['output'] = DenseLayer(self.net['dense2'], num_units=num_actions)
+        self.net = self.build_net(input_shape, input_var, hidden_size, num_actions);
 
         input_var = self.net['input'].input_var;
+        target_var = T.matrix('targets');
 
         log.debug("Defining and compiling a Theano function to predict Q-values");
         prediction = lasagne.layers.get_output(self.net['output']);
-        self.predict = theano.function([input_var], prediction);
+        self.tf_predict = theano.function([input_var], prediction);
 
         log.debug("Defining the loss function for training");
         # Create a loss expression for training
         # i.e. a scalar objective we want to minimize
-        loss = lasagne.objectives.squared_error(prediction, target_var)
-        loss = loss.mean()
+        loss = lasagne.objectives.squared_error(prediction, target_var);
+        loss = loss.mean();
+
+        # Define a shared variable for the learning rate
+        self.learning_rate = theano.shared( np.array(learning_rate, dtype=theano.config.floatX)
+                                          , 'learning_rate'); # 0.113
 
         # Create update expressions for training
         # i.e. how to modify the parameters at each training step.
         # Here, we'll use Stochastic Gradient Descent (SGD).
-        params = lasagne.layers.get_all_params(self.net['output'], trainable=True)
-        updates = lasagne.updates.sgd(loss, params, learning_rate=0.2)
+        params = lasagne.layers.get_all_params(self.net['output'], trainable=True);
+        updates = lasagne.updates.sgd(loss, params, learning_rate=0.2);
 
-        log.debug("Compiling the Theano training function")
+        log.debug("Compiling the Theano training function");
         # Compile a function performing a training step on a mini-batch (by giving
         # the updates dictionary) and returning the corresponding training loss:
-        self.train = theano.function([input_var, target_var], loss, updates=updates)
+        self.tf_train = theano.function([input_var, target_var], loss, updates=updates);
 
-    def prep_inp(self, inp):
-        return floatX(inp)
+    def build_net(self, input_shape, input_var, hidden_size, num_actions):
+        log.debug("Building deep neural network")
+        net = {};
+        net['input']  = InputLayer(input_shape, input_var=input_var);
+        net['dense1'] = DenseLayer(net['input'], num_units=hidden_size);
+        net['dense2'] = DenseLayer(net['dense1'], num_units=hidden_size);
+        net['output'] = DenseLayer(net['dense2'], num_units=num_actions);
+        return net
 
-    def eval_predict(self, inp):
-        return self.predict(self.prep_inp(inp))
+    def set_learning_rate(self, learning_rate):
+        log.debug("Setting learning_rate: {}".format(learning_rate));
+        self.learning_rate.set_value(np.array(learning_rate, dtype=theano.config.floatX));
 
-    def eval_train(self, inp, trg):
-        return self.train(self.prep_inp(inp), floatX(trg))
+    def predict(self, batch_input):
+        return self.tf_predict(floatX(batch_input))
+
+    def train(self, batch_input, batch_target):
+        return self.tf_train(floatX(batch_input), floatX(batch_target));
 
     def save(self, net_file):
-        ensure_dir(os.path.dirname(net_file))
+        ensure_dir(os.path.dirname(net_file));
         log.info("Saving net file: {}".format(net_file));
         with open(net_file, 'wb') as pkl_file:
             param_values = lasagne.layers.get_all_param_values(self.net['output']);

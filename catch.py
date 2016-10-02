@@ -14,18 +14,18 @@
    limitations under the License.
 """
 
-import gym
-gym.undo_logger_setup()
+import gym;
+gym.undo_logger_setup();
 
 import logging;
-log = logging.getLogger(__name__)
+log = logging.getLogger(__name__);
 
-import numpy as np
+import numpy as np;
 # %matplotlib inline
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt;
 
-from gym import spaces
-from gym.utils import seeding
+from gym import spaces;
+from gym.utils import seeding;
 
 
 class Catch(gym.Env):
@@ -35,25 +35,26 @@ class Catch(gym.Env):
         'render.modes': ['human', 'rgb_array', 'matplotlib']
     }
 
-    def __init__(self):
+    def __init__(self, grid_size = 10):
         log.info("Creating an OpenAI Gym environment to play Catch");
-        self.grid_size = 10
+        log.debug("Grid size: {}".format(grid_size));
+        self.grid_size = grid_size;
 
-        self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Discrete((self.grid_size,self.grid_size))
-        self.reward_range = (-1, 1)
+        self.action_space = spaces.Discrete(3);
+        self.observation_space = spaces.Discrete((self.grid_size,self.grid_size));
+        self.reward_range = (-1, 1);
 
-        self.seed()
-        self.reset()
+        self.seed();
+        self.reset();
 
     def _seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
+        self.np_random, seed = seeding.np_random(seed);
         return [seed]
 
     def _reset(self):
-        n = np.random.randint(0, self.grid_size-1, size=1)
-        m = np.random.randint(1, self.grid_size-2, size=1)
-        self.state = np.asarray([0, n, m])
+        n = np.random.randint(0, self.grid_size-1, size=1);
+        m = np.random.randint(1, self.grid_size-2, size=1);
+        self.state = np.asarray([0, n, m]);
         return self._get_observation()
 
     def _step(self, action):
@@ -65,53 +66,53 @@ class Catch(gym.Env):
             move = 1       # right
 
         # Get current state
-        fruit_row, fruit_col, basket = self.state
+        fruit_row, fruit_col, basket = self.state;
         # Transform state
-        fruit_row += 1
-        basket = min(max(1, basket + move), self.grid_size-1)
+        fruit_row += 1;
+        basket = min(max(1, basket + move), self.grid_size-1);
         # Save new state
-        self.state = np.asarray([fruit_row, fruit_col, basket])
+        self.state = np.asarray([fruit_row, fruit_col, basket]);
 
         # Determine the observed new state
-        observation = self._get_observation()
+        observation = self._get_observation();
         # Determine if we are done
-        done = (fruit_row == self.grid_size-1)
+        done = (fruit_row == self.grid_size-1);
         # Determine the reward
-        reward = self._get_reward()
+        reward = self._get_reward();
         # Set information dictionary
-        info = {}
+        info = {};
 
         return observation, reward, done, info
 
     def _get_observation(self):
         # Get current state
-        fruit_row, fruit_col, basket = self.state
+        fruit_row, fruit_col, basket = self.state;
         # Get observation
-        observation = np.zeros((self.grid_size, self.grid_size))
-        observation[fruit_row, fruit_col] = 1       # draw the fruit
-        observation[-1, (basket-1):(basket+2)] = 1  # draw the basket
+        observation = np.zeros((self.grid_size, self.grid_size));
+        observation[fruit_row, fruit_col] = 1;       # draw the fruit
+        observation[-1, (basket-1):(basket+2)] = 1;  # draw the basket
         return observation
 
     def _get_observation_rgb(self):
         # Get current state
-        fruit_row, fruit_col, basket = self.state
-        reward = self._get_reward()
+        fruit_row, fruit_col, basket = self.state;
+        reward = self._get_reward();
         # Get observation
-        observation_rgb = np.zeros((self.grid_size, self.grid_size, 3), dtype='uint8')
+        observation_rgb = np.zeros((self.grid_size, self.grid_size, 3), dtype='uint8');
         # draw the basket
-        observation_rgb[-1, (basket-1):(basket+2), :] = [87, 45, 9]
+        observation_rgb[-1, (basket-1):(basket+2), :] = [87, 45, 9];
         # draw the fruit
         if reward == 1:
-            observation_rgb[fruit_row, fruit_col, :] = [96, 192, 64]
+            observation_rgb[fruit_row, fruit_col, :] = [96, 192, 64];
         elif reward == 0:
-            observation_rgb[fruit_row, fruit_col, :] = [192, 192, 64]
+            observation_rgb[fruit_row, fruit_col, :] = [192, 192, 64];
         else:
-            observation_rgb[fruit_row, fruit_col, :] = [192, 64, 64]
+            observation_rgb[fruit_row, fruit_col, :] = [192, 64, 64];
         return observation_rgb
 
     def _get_reward(self):
         # Get current state
-        fruit_row, fruit_col, basket = self.state
+        fruit_row, fruit_col, basket = self.state;
         # Get reward
         if fruit_row == self.grid_size-1:
             if abs(fruit_col - basket) <= 1:
@@ -124,7 +125,7 @@ class Catch(gym.Env):
     def _plot_observation(self):
         plt.imshow(  self._get_observation_rgb()
                    , interpolation='none'
-                   )
+                  );
         plt.tick_params(
               axis='both'        # changes apply to both the x-axis and the y-axis
             , which='both'       # both major and minor ticks are affected
@@ -145,11 +146,11 @@ class Catch(gym.Env):
                 pass
             return
         if mode == 'human':
-            self._plot_observation()
-            plt.show()
+            self._plot_observation();
+            plt.show();
             return
         if mode == 'matplotlib':
-            self._plot_observation()
+            self._plot_observation();
             return
         if mode == 'rgb_array':
             rgb_array = self._get_observation_rgb();

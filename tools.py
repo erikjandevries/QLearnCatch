@@ -14,9 +14,9 @@
    limitations under the License.
 """
 
-import logging
-log = logging.getLogger(__name__)
-import os
+import logging;
+log = logging.getLogger(__name__);
+import os;
 
 
 def ensure_dir(d):
